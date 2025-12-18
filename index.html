@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HideMyCode - Code Obfuscation Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            padding: 25px;
+            color: white;
+        }
+
+        .tabs-container {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab.active {
+            border-bottom: 3px solid #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .code-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .code-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .code-section h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: rgba(46, 204, 113, 0.7);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: rgba(46, 204, 113, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(231, 76, 60, 0.7);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: rgba(231, 76, 60, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .feature i {
+            font-size: 1.2rem;
+            color: #a29bfe;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .code-container {
+                flex-direction: column;
+            }
+            
+            .tabs-container {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-code"></i>HideMyCode</h1>
+            <p>Advanced Code Obfuscation Tool for Multiple Languages</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="tabs-container">
+                <div class="tab active" data-tab="html">
+                    <i class="fab fa-html5"></i> HTML
+                </div>
+                <div class="tab" data-tab="css">
+                    <i class="fab fa-css3-alt"></i> CSS
+                </div>
+                <div class="tab" data-tab="js">
+                    <i class="fab fa-js-square"></i> JavaScript
+                </div>
+                <div class="tab" data-tab="python">
+                    <i class="fab fa-python"></i> Python
+                </div>
+                <div class="tab" data-tab="c">
+                    <i class="fas fa-c"></i> C
+                </div>
+                <div class="tab" data-tab="cpp">
+                    <i class="fas fa-plus"></i> C++
+                </div>
+                <div class="tab" data-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </div>
+            </div>
+
+            <div class="tab-content active" id="html-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original HTML</h3>
+                        <textarea id="html-input" placeholder="Paste your HTML code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="html-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate HTML
+                            </button>
+                            <button class="btn btn-success" id="html-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="html-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated HTML</h3>
+                        <textarea id="html-output" readonly placeholder="Obfuscated HTML will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="html-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="css-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original CSS</h3>
+                        <textarea id="css-input" placeholder="Paste your CSS code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="css-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate CSS
+                            </button>
+                            <button class="btn btn-success" id="css-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="css-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated CSS</h3>
+                        <textarea id="css-output" readonly placeholder="Obfuscated CSS will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="css-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="js-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original JavaScript</h3>
+                        <textarea id="js-input" placeholder="Paste your JavaScript code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="js-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate JS
+                            </button>
+                            <button class="btn btn-success" id="js-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="js-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated JavaScript</h3>
+                        <textarea id="js-output" readonly placeholder="Obfuscated JavaScript will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="js-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="python-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original Python</h3>
+                        <textarea id="python-input" placeholder="Paste your Python code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="python-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate Python
+                            </button>
+                            <button class="btn btn-success" id="python-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="python-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated Python</h3>
+                        <textarea id="python-output" readonly placeholder="Obfuscated Python will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="python-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="c-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original C</h3>
+                        <textarea id="c-input" placeholder="Paste your C code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="c-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate C
+                            </button>
+                            <button class="btn btn-success" id="c-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="c-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated C</h3>
+                        <textarea id="c-output" readonly placeholder="Obfuscated C will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="c-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="cpp-tab">
+                <div class="code-container">
+                    <div class="code-section">
+                        <h3><i class="fas fa-code"></i> Original C++</h3>
+                        <textarea id="cpp-input" placeholder="Paste your C++ code here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-primary" id="cpp-obfuscate">
+                                <i class="fas fa-lock"></i> Obfuscate C++
+                            </button>
+                            <button class="btn btn-success" id="cpp-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                            <button class="btn btn-danger" id="cpp-clear">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-section">
+                        <h3><i class="fas fa-shield-alt"></i> Obfuscated C++</h3>
+                        <textarea id="cpp-output" readonly placeholder="Obfuscated C++ will appear here..."></textarea>
+                        <div class="buttons">
+                            <button class="btn btn-success" id="cpp-output-copy">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="settings-tab">
+                <h3><i class="fas fa-cog"></i> Obfuscation Settings</h3>
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Rename variables and functions</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Encode strings and numbers</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Control flow flattening</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Dead code injection</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Debug protection</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Domain lock</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>String encryption</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Identifier mangling</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4>Obfuscation Level</h4>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary">Low</button>
+                        <button class="btn btn-primary active">Medium</button>
+                        <button class="btn btn-primary">High</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>HideMyCode Designed By  CyberArtist - Gaurav Pandey &copy; 2025 @SpydoByte | Protect your source code with advanced obfuscation techniques</p>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Obfuscation functions (simplified for demo)
+        function obfuscateHTML(code) {
+            // Simple HTML obfuscation by encoding tags
+            return code
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br>')
+                .replace(/\s/g, '&nbsp;');
+        }
+
+        function obfuscateCSS(code) {
+            // Simple CSS obfuscation by removing spaces and line breaks
+            return code
+                .replace(/\s+/g, ' ')
+                .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+                .trim();
+        }
+
+        function obfuscateJS(code) {
+            // Simple JS obfuscation by encoding strings and renaming variables
+            // This is a very basic example - real obfuscation would be more complex
+            return code
+                .replace(/var\s+(\w+)/g, 'var a$1')
+                .replace(/function\s+(\w+)/g, 'function f$1')
+                .replace(/"([^"]*)"/g, (match, p1) => `"${btoa(p1)}"`)
+                .replace(/'([^']*)'/g, (match, p1) => `'${btoa(p1)}'`);
+        }
+
+        function obfuscatePython(code) {
+            // Simple Python obfuscation by encoding strings and renaming variables
+            return code
+                .replace(/def\s+(\w+)/g, 'def f_$1')
+                .replace(/(\w+)\s*=/g, 'v_$1 =')
+                .replace(/"([^"]*)"/g, (match, p1) => `"${btoa(p1)}"`)
+                .replace(/'([^']*)'/g, (match, p1) => `'${btoa(p1)}'`);
+        }
+
+        function obfuscateC(code) {
+            // Simple C obfuscation by encoding strings and renaming variables
+            return code
+                .replace(/int\s+(\w+)/g, 'int i_$1')
+                .replace(/char\s+(\w+)/g, 'char c_$1')
+                .replace(/void\s+(\w+)/g, 'void v_$1')
+                .replace(/"([^"]*)"/g, (match, p1) => `"${btoa(p1)}"`);
+        }
+
+        function obfuscateCPP(code) {
+            // Simple C++ obfuscation by encoding strings and renaming variables
+            return code
+                .replace(/int\s+(\w+)/g, 'int i_$1')
+                .replace(/string\s+(\w+)/g, 'string s_$1')
+                .replace(/void\s+(\w+)/g, 'void v_$1')
+                .replace(/class\s+(\w+)/g, 'class c_$1')
+                .replace(/"([^"]*)"/g, (match, p1) => `"${btoa(p1)}"`);
+        }
+
+        // HTML obfuscation
+        document.getElementById('html-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('html-input').value;
+            const output = obfuscateHTML(input);
+            document.getElementById('html-output').value = output;
+        });
+
+        // CSS obfuscation
+        document.getElementById('css-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('css-input').value;
+            const output = obfuscateCSS(input);
+            document.getElementById('css-output').value = output;
+        });
+
+        // JavaScript obfuscation
+        document.getElementById('js-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('js-input').value;
+            const output = obfuscateJS(input);
+            document.getElementById('js-output').value = output;
+        });
+
+        // Python obfuscation
+        document.getElementById('python-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('python-input').value;
+            const output = obfuscatePython(input);
+            document.getElementById('python-output').value = output;
+        });
+
+        // C obfuscation
+        document.getElementById('c-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('c-input').value;
+            const output = obfuscateC(input);
+            document.getElementById('c-output').value = output;
+        });
+
+        // C++ obfuscation
+        document.getElementById('cpp-obfuscate').addEventListener('click', () => {
+            const input = document.getElementById('cpp-input').value;
+            const output = obfuscateCPP(input);
+            document.getElementById('cpp-output').value = output;
+        });
+
+        // Copy functionality
+        document.querySelectorAll('.btn-success').forEach(button => {
+            button.addEventListener('click', (e) => {
+                let targetId;
+                
+                if (e.target.id.includes('html')) {
+                    targetId = e.target.id.includes('output') ? 'html-output' : 'html-input';
+                } else if (e.target.id.includes('css')) {
+                    targetId = e.target.id.includes('output') ? 'css-output' : 'css-input';
+                } else if (e.target.id.includes('js')) {
+                    targetId = e.target.id.includes('output') ? 'js-output' : 'js-input';
+                } else if (e.target.id.includes('python')) {
+                    targetId = e.target.id.includes('output') ? 'python-output' : 'python-input';
+                } else if (e.target.id.includes('c-') && !e.target.id.includes('cpp')) {
+                    targetId = e.target.id.includes('output') ? 'c-output' : 'c-input';
+                } else if (e.target.id.includes('cpp')) {
+                    targetId = e.target.id.includes('output') ? 'cpp-output' : 'cpp-input';
+                }
+                
+                const textarea = document.getElementById(targetId);
+                textarea.select();
+                document.execCommand('copy');
+                
+                // Visual feedback
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+
+        // Clear functionality
+        document.getElementById('html-clear').addEventListener('click', () => {
+            document.getElementById('html-input').value = '';
+            document.getElementById('html-output').value = '';
+        });
+
+        document.getElementById('css-clear').addEventListener('click', () => {
+            document.getElementById('css-input').value = '';
+            document.getElementById('css-output').value = '';
+        });
+
+        document.getElementById('js-clear').addEventListener('click', () => {
+            document.getElementById('js-input').value = '';
+            document.getElementById('js-output').value = '';
+        });
+
+        document.getElementById('python-clear').addEventListener('click', () => {
+            document.getElementById('python-input').value = '';
+            document.getElementById('python-output').value = '';
+        });
+
+        document.getElementById('c-clear').addEventListener('click', () => {
+            document.getElementById('c-input').value = '';
+            document.getElementById('c-output').value = '';
+        });
+
+        document.getElementById('cpp-clear').addEventListener('click', () => {
+            document.getElementById('cpp-input').value = '';
+            document.getElementById('cpp-output').value = '';
+        });
+
+        // Add active state to obfuscation level buttons
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            if (btn.textContent === 'Medium') {
+                btn.classList.add('active');
+            }
+            
+            btn.addEventListener('click', function() {
+                if (this.parentElement.querySelector('h4')) {
+                    this.parentElement.querySelectorAll('.btn-primary').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Add sample code to each input for demonstration
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('html-input').value = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample Page</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+    <p>This is a sample HTML page.</p>
+</body>
+</html>`;
+
+            document.getElementById('css-input').value = `body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+}`;
+
+            document.getElementById('js-input').value = `function calculateSum(a, b) {
+    return a + b;
+}
+
+const result = calculateSum(5, 10);
+console.log("The result is: " + result);`;
+
+            document.getElementById('python-input').value = `def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+
+number = 5
+result = factorial(number)
+print(f"The factorial of {number} is {result}")`;
+
+            document.getElementById('c-input').value = `#include <stdio.h>
+
+int main() {
+    int number, i;
+    unsigned long long factorial = 1;
+
+    printf("Enter an integer: ");
+    scanf("%d", &number);
+
+    for(i = 1; i <= number; i++) {
+        factorial *= i;
+    }
+
+    printf("Factorial of %d = %llu\\n", number, factorial);
+    return 0;
+}`;
+
+            document.getElementById('cpp-input').value = `#include <iostream>
+using namespace std;
+
+class Calculator {
+public:
+    int add(int a, int b) {
+        return a + b;
+    }
+    
+    int multiply(int a, int b) {
+        return a * b;
+    }
+};
+
+int main() {
+    Calculator calc;
+    cout << "5 + 3 = " << calc.add(5, 3) << endl;
+    cout << "5 * 3 = " << calc.multiply(5, 3) << endl;
+    return 0;
+}`;
+        });
+    </script>
+</body>
+</html>
